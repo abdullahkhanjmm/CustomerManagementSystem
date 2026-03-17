@@ -16,10 +16,10 @@ public class CustomersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CustomerDto>>> GetAll()
+    public async Task<ActionResult<PagedResponse<CustomerDto>>> GetAll([FromQuery] CustomerParams customerParams)
     {
-        var customers = await _customerService.GetAllAsync();
-        return Ok(customers);
+        var result = await _customerService.GetAllAsync(customerParams);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

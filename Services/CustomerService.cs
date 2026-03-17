@@ -9,18 +9,30 @@ namespace CustomerManagementSystem.Services;
 public class CustomerService : ICustomerService
 {
     private readonly ICustomerRepository _customerRepository;
+    private readonly ICustomerTypeRepository _customerTypeRepository;
     private readonly IMapper _mapper;
 
-    public CustomerService(ICustomerRepository customerRepository, IMapper mapper)
+    public CustomerService(
+        ICustomerRepository customerRepository, 
+        ICustomerTypeRepository customerTypeRepository,
+        IMapper mapper)
     {
         _customerRepository = customerRepository;
+        _customerTypeRepository = customerTypeRepository;
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<CustomerDto>> GetAllAsync()
+    public async Task<PagedResponse<CustomerDto>> GetAllAsync(CustomerParams customerParams)
     {
-        var customers = await _customerRepository.GetAllWithTypeAsync();
-        return _mapper.Map<IEnumerable<CustomerDto>>(customers);
+        var (items, totalCount) = await _customerRepository.GetPagedAsync(
+            customerParams.SearchTerm,
+            customerParams.SortBy,
+            customerParams.SortDescending,
+            customerParams.PageNumber,
+            customerParams.PageSize);
+
+        var dtos = _mapper.Map<IEnumerable<CustomerDto>>(items);
+        return new PagedResponse<CustomerDto>(dtos, totalCount, customerParams.PageNumber, customerParams.PageSize);
     }
 
     public async Task<CustomerDto?> GetByIdAsync(int id)
@@ -31,6 +43,11 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerDto> CreateAsync(CreateCustomerDto dto)
     {
+        if (await _customerTypeRepository.GetByIdAsync(dto.CustomerTypeId) == null)
+        {
+            throw new KeyNotFoundException($"CustomerType with ID {dto.CustomerTypeId} not found.");
+        }
+
         var customer = _mapper.Map<Customer>(dto);
 
         await _customerRepository.AddAsync(customer);
@@ -44,6 +61,11 @@ public class CustomerService : ICustomerService
     {
         var customer = await _customerRepository.GetByIdAsync(id);
         if (customer is null) return null;
+
+        if (await _customerTypeRepository.GetByIdAsync(dto.CustomerTypeId) == null)
+        {
+            throw new KeyNotFoundException($"CustomerType with ID {dto.CustomerTypeId} not found.");
+        }
 
         _mapper.Map(dto, customer);
 

@@ -1,6 +1,7 @@
 using CustomerManagementSystem.Data;
 using CustomerManagementSystem.Extensions;
 using CustomerManagementSystem.Mappings;
+using CustomerManagementSystem.Middleware;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,8 @@ builder.Services.AddServices();
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
