@@ -67,10 +67,13 @@ dotnet run
 ```
 
 The API will be available at:
-- `https://localhost:7290` (HTTPS)
-- `http://localhost:5282` (HTTP)
+- `https://localhost:7290` (Local Development)
+- `https://productbox.runasp.net/` (Live API)
 
-Swagger UI: `https://localhost:7290/swagger`
+The Frontend is live at:
+- `https://pbtask.abdullahkhan.net/`
+
+Swagger UI: `https://productbox.runasp.net/swagger/index.html`
 
 ---
 
